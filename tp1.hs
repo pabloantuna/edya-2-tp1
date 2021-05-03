@@ -35,7 +35,7 @@ ordenar :: Punto p => Int -> [p] -> [p]
 ordenar eje = sortBy (comparar eje)
 
 mayorMediana :: Punto p => [p] -> Int -> Int
-mayorMediana lista eje = fromMaybe 0 (findIndex (\p -> coord eje p > mediana) lista) - 1
+mayorMediana lista eje = fromMaybe (length lista) (findIndex (\p -> coord eje p > mediana) lista) - 1
     where mediana = coord eje (lista!!(length lista `div` 2))
 
 generarArbol :: Punto p => Int -> [p] -> NdTree p
@@ -48,11 +48,14 @@ generarArbol nivel (x:xs) = Node (generarArbol (nivel + 1) menores) mediana (gen
 fromList :: Punto p => [p] -> NdTree p
 fromList = generarArbol  0
 
+-- >>> fromList [P2d (2,3)]
+-- Node Empty (P2d (2.0,3.0)) Empty 0
+
 -- >>> fromList [P2d(2,3), P2d(5,4), P2d(9,6), P2d(4,7), P2d(8,1), P2d(7,2)]
 -- >>> fromList [P2d(1,2), P2d(1,3), P2d(2,3), P2d(3,3), P2d(1,4)]
 -- >>> generarArbol 1 [P2d(1,2), P2d(1,3), P2d(2,3), P2d(3,3), P2d(1,4)]
--- Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node Empty (P2d (9.0,6.0)) Empty 0) 1) 0
--- Node (Node Empty (P2d (1.0,2.0)) (Node Empty (P2d (1.0,3.0)) Empty 0) 1) (P2d (1.0,4.0)) (Node Empty (P2d (2.0,3.0)) (Node Empty (P2d (3.0,3.0)) Empty 0) 1) 0
+-- Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node (Node Empty (P2d (8.0,1.0)) Empty 0) (P2d (9.0,6.0)) Empty 1) 0
+-- Node (Node (Node Empty (P2d (1.0,2.0)) Empty 0) (P2d (1.0,3.0)) Empty 1) (P2d (1.0,4.0)) (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (3.0,3.0)) Empty 1) 0
 -- Node (Node (Node Empty (P2d (1.0,2.0)) Empty 1) (P2d (1.0,3.0)) (Node Empty (P2d (2.0,3.0)) Empty 1) 0) (P2d (3.0,3.0)) (Node Empty (P2d (1.0,4.0)) Empty 0) 1
 
 -- Ejercicio 3
@@ -73,13 +76,12 @@ insertar p arbol@(Node l x r ejeInicial) = insertar_ ejeInicial p arbol
 
 -- Ejercicio 4
 
-buscarReemplazo :: Punto p => NdTree p -> Int -> Bool -> p
-buscarReemplazo (Node Empty p Empty _) eje _ = p
+buscarReemplazo :: (Eq p, Punto p) => NdTree p -> Int -> Bool -> p
 buscarReemplazo (Node left p right _) eje buscarMenor =
     if buscarMenor
     then minimumBy (comparar eje) candidatos
     else maximumBy (comparar eje) candidatos
-    where candidatos = [buscarReemplazo left eje buscarMenor, p, buscarReemplazo right eje buscarMenor]
+    where candidatos = [buscarReemplazo left eje buscarMenor | left /= Empty] ++ [p] ++ [buscarReemplazo right eje buscarMenor | right /= Empty]
 
 reemplazar :: (Eq p, Punto p) => p -> NdTree p -> NdTree p
 reemplazar p (Node Empty x Empty eje) = Empty
@@ -121,5 +123,5 @@ orthogonalSearch (Node left p right eje) (r1, r2) =
         resultRight = if comparar eje high p == GT then orthogonalSearch right (r1, r2) else []
     in resultLeft ++ [p | inRegion p (r1, r2)] ++ resultRight
 
--- >>> orthogonalSearch (Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node Empty (P2d (9.0,6.0)) Empty 0) 1) 0) (P2d (3,1),P2d (7,8))
--- [P2d (5.0,4.0),P2d (4.0,7.0),P2d (7.0,2.0)]
+-- >>> orthogonalSearch (Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node Empty (P2d (9.0,6.0)) Empty 0) 1) 0) (P2d (2,3),P2d (7,7))
+-- [P2d (2.0,3.0),P2d (5.0,4.0),P2d (4.0,7.0)]
