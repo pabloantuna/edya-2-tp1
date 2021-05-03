@@ -1,6 +1,12 @@
 import Data.List ( maximumBy, minimumBy, findIndex, sortBy )
 import Data.Maybe ( fromMaybe )
 
+-----------------------------------------------
+--      TRABAJO PRÁCTICO N° 1 - K-D TREE     --
+--                                           --
+--      Pablo Antuña - Lautaro Garavano      --
+-----------------------------------------------
+
 -- Ejercicio 1
 
 data NdTree p = Node (NdTree p) p (NdTree p) Int | Empty
