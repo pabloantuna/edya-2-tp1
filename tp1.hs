@@ -57,15 +57,19 @@ fromList = generarArbol  0
 
 -- Ejercicio 3
 
+insertar_ :: Punto p => Int -> p -> NdTree p -> NdTree p
+insertar_ n p Empty = Node Empty p Empty n
+insertar_ n p (Node left x right eje) =
+    if comparar eje p x == GT
+    then Node left x (insertar_ ((n + 1) `mod` dimension x) p right) eje
+    else Node (insertar_ ((n + 1) `mod` dimension x) p left) x right eje
+
 insertar :: Punto p => p -> NdTree p -> NdTree p
 insertar p Empty = Node Empty p Empty 0
-insertar p (Node left x right eje) =
-    if comparar eje p x == GT
-    then Node left x (insertar p right) eje
-    else Node (insertar p left) x right eje
+insertar p arbol@(Node l x r ejeInicial) = insertar_ ejeInicial p arbol
 
 -- >>> insertar (P2d (8.0, 9.0)) (Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node Empty (P2d (9.0,6.0)) Empty 0) 1) 0)
--- Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node (Node Empty (P2d (8.0,9.0)) Empty 0) (P2d (9.0,6.0)) Empty 0) 1) 0
+-- Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node (Node Empty (P2d (8.0,9.0)) Empty 1) (P2d (9.0,6.0)) Empty 0) 1) 0
 
 -- Ejercicio 4
 
