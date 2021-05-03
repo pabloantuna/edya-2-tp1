@@ -112,9 +112,9 @@ orthogonalSearch :: NdTree Punto2d -> Rect -> [Punto2d]
 orthogonalSearch Empty rect = []
 orthogonalSearch (Node Empty p Empty eje) rect = [p | inRegion p rect]
 orthogonalSearch (Node left p right eje) (r1, r2) =
-    let (min, max) = if comparar eje r1 r2 == GT then (r2, r1) else (r1, r2)
-        resultLeft = if comparar eje min p == GT then [] else orthogonalSearch left (r1, r2)
-        resultRight = if comparar eje max p == GT then orthogonalSearch right (r1, r2) else []
+    let (low, high) = if comparar eje r1 r2 == GT then (r2, r1) else (r1, r2)
+        resultLeft = if comparar eje low p == GT then [] else orthogonalSearch left (r1, r2)
+        resultRight = if comparar eje high p == GT then orthogonalSearch right (r1, r2) else []
     in resultLeft ++ [p | inRegion p (r1, r2)] ++ resultRight
 
 -- >>> orthogonalSearch (Node (Node (Node Empty (P2d (2.0,3.0)) Empty 0) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 0) 1) (P2d (7.0,2.0)) (Node Empty (P2d (8.0,1.0)) (Node Empty (P2d (9.0,6.0)) Empty 0) 1) 0) (P2d (3,1),P2d (7,8))
